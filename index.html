@@ -181,127 +181,73 @@ Cargando tareas...
 </div>
 
 <script>
-
-function actualizarReloj(){
-
-document.getElementById('reloj').textContent=
-
-new Date().toLocaleTimeString('es-PE');
-
+<script>
+// --- Notación específica: Reloj ---
+function actualizarReloj() {
+    document.getElementById('reloj').textContent = new Date().toLocaleTimeString('es-PE');
 }
-
-setInterval(actualizarReloj,1000);
-
+setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
-function renderizarTareas(tareas){
+// --- Notación específica: Renderizado visual ---
+function renderizarTareas(tareas) {
+    const contenedor = document.getElementById('contenedor-tareas');
+    contenedor.innerHTML = '';
 
-const contenedor=
+    if (!tareas || tareas.length === 0) {
+        contenedor.innerHTML = '<div class="empty-state">NO HAY TAREAS PENDIENTES</div>';
+        return;
+    }
 
-document.getElementById('contenedor-tareas');
-
-contenedor.innerHTML='';
-
-if(tareas.length==0){
-
-contenedor.innerHTML=
-
-'<div class="empty-state">NO HAY TAREAS</div>';
-
-return;
-
+    tareas.forEach(tarea => {
+        const enProceso = tarea.estado === "EN_PROCESO";
+        const card = document.createElement("div");
+        card.className = `card ${enProceso ? "en-proceso" : ""}`;
+        card.innerHTML = `
+            <div class="col empresa">${tarea.empresa}</div>
+            <div class="col componente">${tarea.componente}</div>
+            <div class="col operario">👤 ${tarea.operario_asignado || 'Sin asignar'}</div>
+            <div class="estado">${enProceso ? "EN PROCESO" : "PENDIENTE"}</div>
+        `;
+        contenedor.appendChild(card);
+    });
 }
 
-tareas.forEach(tarea=>{
+// --- Método de Disyunción: Conexión Real a TiDB ---
+const API_URL = "https://us-east-1.data.tidbcloud.com/api/v1beta/app/dataapp-sjoCrdWZ/endpoint/tareas";
+const PUBLIC_KEY = "C2UDOK40";
+const PRIVATE_KEY = "a0c7bcb7-bf10-4b88-a53a-c4a922f72aa3";
+const AUTH_HEADER = "Basic " + btoa(PUBLIC_KEY + ":" + PRIVATE_KEY);
 
-const enProceso=
-
-tarea.estado==="EN_PROCESO";
-
-const card=document.createElement("div");
-
-card.className=
-
-`card ${enProceso?"en-proceso":""}`;
-
-card.innerHTML=`
-
-<div class="col empresa">
-
-${tarea.empresa}
-
-</div>
-
-<div class="col componente">
-
-${tarea.componente}
-
-</div>
-
-<div class="col operario">
-
-👤 ${tarea.operario_asignado}
-
-</div>
-
-<div class="estado">
-
-${enProceso?"EN PROCESO":"PENDIENTE"}
-
-</div>
-
-`;
-
-contenedor.appendChild(card);
-
-});
-
+async function obtenerTareasEnVivo() {
+    try {
+        const respuesta = await fetch(API_URL, {
+            method: "GET",
+            headers: {
+                "Authorization": AUTH_HEADER,
+                "Content-Type": "application/json"
+            }
+        });
+        
+        const json = await respuesta.json();
+        
+        // Extraemos exclusivamente el arreglo de filas (rows)
+        const tareasReales = json.data.rows;
+        
+        renderizarTareas(tareasReales);
+    } catch (error) {
+        console.error("Error de conexión:", error);
+        document.getElementById('contenedor-tareas').innerHTML = '<div class="empty-state">Conectando al servidor... ⏳</div>';
+    }
 }
 
-const tareasSimuladas=[
-
-{
-
-empresa:"MINERA LOS ANDES",
-
-componente:"Bomba Inyección",
-
-estado:"EN_PROCESO",
-
-operario_asignado:"Juan Pérez"
-
-},
-
-{
-
-empresa:"TRANSPORTES SAC",
-
-componente:"Inyector",
-
-estado:"PENDIENTE",
-
-operario_asignado:"Carlos Gómez"
-
-},
-
-{
-
-empresa:"AGRO EXPORT",
-
-componente:"Turbo",
-
-estado:"PENDIENTE",
-
-operario_asignado:"Sin asignar"
-
-}
-
-];
-
-renderizarTareas(tareasSimuladas);
-
+// Ejecutar inmediatamente y recargar los datos cada 10 segundos
+obtenerTareasEnVivo();
+setInterval(obtenerTareasEnVivo, 10000);
+</script>
 </script>
 
 </body>
 
 </html>
+
