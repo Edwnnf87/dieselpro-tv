@@ -221,13 +221,14 @@ const AUTH_HEADER = "Basic " + btoa(PUBLIC_KEY + ":" + PRIVATE_KEY);
 
 async function obtenerTareasEnVivo() {
     try {
-        const respuesta = await fetch(API_URL, {
-            method: "GET",
-            headers: {
-                "Authorization": AUTH_HEADER,
-                "Content-Type": "application/json"
-            }
-        });
+const respuesta = await fetch(API_URL, {
+    method: "GET",
+    mode: "cors", // <--- Agregamos esto explícitamente
+    headers: {
+        "Authorization": AUTH_HEADER,
+        "Accept": "application/json"
+    }
+});
         
         const json = await respuesta.json();
         
@@ -250,4 +251,5 @@ setInterval(obtenerTareasEnVivo, 10000);
 </body>
 
 </html>
+
 
