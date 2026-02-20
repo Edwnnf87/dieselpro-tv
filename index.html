@@ -5,82 +5,239 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diesel Pro - Tablero de Taller</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             margin: 0;
             background-color: #0f172a;
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
         }
+        
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background-color: #1e293b;
             padding: 20px 50px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
+        
         .logo-container {
             display: flex;
             align-items: center;
             gap: 20px;
         }
+        
         .logo {
             background-color: #f59e0b;
             padding: 10px 20px;
             font-size: 28px;
             font-weight: bold;
             border-radius: 8px;
+            color: #0f172a;
         }
+        
         .title {
             font-size: 36px;
             font-weight: bold;
+            color: #f8fafc;
         }
+        
         .clock {
             font-size: 42px;
             color: #38bdf8;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
         }
+        
         .grid-container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            padding: 40px;
+            gap: 15px;
+            padding: 30px 40px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
         }
+        
+        /* Scrollbar personalizado */
+        .grid-container::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .grid-container::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        .grid-container::-webkit-scrollbar-thumb {
+            background: #f59e0b;
+            border-radius: 5px;
+        }
+        
         .card {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr 1fr 0.8fr 0.7fr 0.6fr;
+            gap: 15px;
             align-items: center;
             background-color: #1e293b;
             border-left: 12px solid #f59e0b;
-            padding: 25px;
+            padding: 20px 25px;
             border-radius: 10px;
-            font-size: 26px;
+            font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
         .card.en-proceso {
             border-left-color: #3b82f6;
             background-color: #172554;
         }
-        .col { flex: 1; }
-        .empresa { font-size: 32px; font-weight: bold; }
-        .componente { color: #94a3b8; }
-        .operario { color: #fbbf24; font-weight: bold; }
+        
+        .card.cotizado {
+            border-left-color: #8b5cf6;
+            background-color: #2e1065;
+        }
+        
+        /* ✅ COLUMNAS ACTUALIZADAS */
+        .col-fecha {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .fecha-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        
+        .fecha-valor {
+            font-size: 18px;
+            color: #38bdf8;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        
+        .col-empresa {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .empresa {
+            font-size: 26px;
+            font-weight: bold;
+            color: #f8fafc;
+        }
+        
+        .componente {
+            font-size: 18px;
+            color: #94a3b8;
+        }
+        
+        .col-solicitante {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .solicitante-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+        
+        .solicitante-valor {
+            font-size: 20px;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+        
+        .operario {
+            color: #fbbf24;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        /* ✅ NUEVO: Badge de Informe */
+        .col-informe {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .badge-informe {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .badge-informe.si {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+        
+        .badge-informe.no {
+            background-color: #64748b;
+            color: #cbd5e1;
+        }
+        
         .estado {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: bold;
             padding: 10px 20px;
             border-radius: 20px;
             background-color: #fef3c7;
             color: #b45309;
+            text-align: center;
+            white-space: nowrap;
         }
+        
         .card.en-proceso .estado {
             background-color: #dbeafe;
             color: #1d4ed8;
         }
+        
+        .card.cotizado .estado {
+            background-color: #e9d5ff;
+            color: #6b21a8;
+        }
+        
         .empty-state {
             text-align: center;
             font-size: 40px;
             padding: 100px;
             color: #475569;
+            grid-column: 1 / -1;
+        }
+        
+        /* Animación de entrada */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .card {
+            animation: slideIn 0.3s ease-out;
         }
     </style>
 </head>
@@ -95,40 +252,97 @@
 </div>
 
 <div class="grid-container" id="contenedor-tareas">
-    <div class="empty-state">Cargando tareas reales...</div>
+    <div class="empty-state">Cargando tareas...</div>
 </div>
 
 <script>
-// Reloj
+// ═══════════════════════════════════════════════════════════════════════════
+// RELOJ EN TIEMPO REAL
+// ═══════════════════════════════════════════════════════════════════════════
 function actualizarReloj() {
-    document.getElementById('reloj').textContent = new Date().toLocaleTimeString('es-PE');
+    const ahora = new Date();
+    const horas = String(ahora.getHours()).padStart(2, '0');
+    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+    const segundos = String(ahora.getSeconds()).padStart(2, '0');
+    document.getElementById('reloj').textContent = `${horas}:${minutos}:${segundos}`;
 }
 setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
-// Renderizado
+// ═══════════════════════════════════════════════════════════════════════════
+// FUNCIÓN DE RENDERIZADO ACTUALIZADA
+// ═══════════════════════════════════════════════════════════════════════════
 function renderizar(lista) {
     const contenedor = document.getElementById('contenedor-tareas');
     contenedor.innerHTML = '';
+    
     if (!lista || lista.length === 0) {
-        contenedor.innerHTML = '<div class="empty-state">NO HAY TAREAS PENDIENTES</div>';
+        contenedor.innerHTML = '<div class="empty-state">✅ NO HAY TAREAS PENDIENTES EN TALLER</div>';
         return;
     }
+    
     lista.forEach(t => {
-        const proc = t.estado === "EN_PROCESO";
+        const enProceso = t.estado === "EN_PROCESO";
+        const cotizado = t.estado === "COTIZADO";
+        const tieneInforme = t.informe_estado && t.informe_estado.trim() !== '';
+        
+        // ✅ Formatear fecha de ingreso
+        let fechaFormateada = 'Sin fecha';
+        if (t.fecha_ingreso) {
+            try {
+                const fecha = new Date(t.fecha_ingreso);
+                const dia = String(fecha.getDate()).padStart(2, '0');
+                const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+                const año = fecha.getFullYear();
+                const hora = String(fecha.getHours()).padStart(2, '0');
+                const min = String(fecha.getMinutes()).padStart(2, '0');
+                fechaFormateada = `${dia}/${mes}/${año} ${hora}:${min}`;
+            } catch (e) {
+                fechaFormateada = t.fecha_ingreso;
+            }
+        }
+        
         const div = document.createElement("div");
-        div.className = `card ${proc ? "en-proceso" : ""}`;
+        div.className = `card ${cotizado ? "cotizado" : (enProceso ? "en-proceso" : "")}`;
+        
         div.innerHTML = `
-            <div class="col empresa">${t.empresa}</div>
-            <div class="col componente">${t.componente}</div>
-            <div class="col operario">👤 ${t.operario_asignado || 'Sin asignar'}</div>
-            <div class="estado">${proc ? "EN PROCESO" : "PENDIENTE"}</div>
+            <div class="col-fecha">
+                <span class="fecha-label">📅 Ingreso</span>
+                <span class="fecha-valor">${fechaFormateada}</span>
+            </div>
+            
+            <div class="col-empresa">
+                <div class="empresa">${t.empresa || 'Sin nombre'}</div>
+                <div class="componente">${t.componente || 'Sin especificar'}</div>
+            </div>
+            
+            <div class="col-solicitante">
+                <span class="solicitante-label">👤 Solicitante</span>
+                <span class="solicitante-valor">${t.solicitante || 'No especificado'}</span>
+            </div>
+            
+            <div class="operario">
+                🔧 ${t.operario_asignado || 'Sin asignar'}
+            </div>
+            
+            <div class="col-informe">
+                <div class="badge-informe ${tieneInforme ? 'si' : 'no'}">
+                    ${tieneInforme ? '📋 CON INFORME' : '⚪ SIN INFORME'}
+                </div>
+            </div>
+            
+            <div class="estado">
+                ${cotizado ? '📄 COTIZADO' : (enProceso ? '⚙️ EN PROCESO' : '📋 PENDIENTE')}
+            </div>
         `;
+        
         contenedor.appendChild(div);
     });
 }
 
-// Conexión TiDB
+// ═══════════════════════════════════════════════════════════════════════════
+// CONEXIÓN A TiDB CLOUD
+// ═══════════════════════════════════════════════════════════════════════════
 const URL_API = "https://us-east-1.data.tidbcloud.com/api/v1beta/app/dataapp-sjoCrdWZ/endpoint/tareas";
 const CLAVE_P = "C2UDOK40";
 const CLAVE_S = "a0c7bcb7-bf10-4b88-a53a-c4a922f72aa3";
@@ -136,17 +350,30 @@ const TOKEN = "Basic " + btoa(CLAVE_P + ":" + CLAVE_S);
 
 async function cargar() {
     try {
+        console.log('🔄 Cargando tareas desde TiDB...');
         const res = await fetch(URL_API, {
             method: "GET",
-            headers: { "Authorization": TOKEN, "Accept": "application/json" }
+            headers: { 
+                "Authorization": TOKEN, 
+                "Accept": "application/json" 
+            }
         });
+        
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        
         const data = await res.json();
+        console.log('✅ Tareas recibidas:', data.data.rows.length);
         renderizar(data.data.rows);
     } catch (e) {
-        console.error("Fallo:", e);
+        console.error("❌ Error al cargar tareas:", e);
+        document.getElementById('contenedor-tareas').innerHTML = 
+            '<div class="empty-state">⚠️ ERROR DE CONEXIÓN CON LA BASE DE DATOS</div>';
     }
 }
 
+// Cargar inmediatamente y luego cada 10 segundos
 cargar();
 setInterval(cargar, 10000);
 </script>
