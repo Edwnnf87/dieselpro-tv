@@ -11,8 +11,6 @@
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        /* CABECERA */
         .header {
             display: flex;
             justify-content: space-between;
@@ -20,13 +18,11 @@
             background-color: #1e293b;
             padding: 20px 50px;
         }
-
         .logo-container {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-
         .logo {
             background-color: #f59e0b;
             padding: 10px 20px;
@@ -34,27 +30,21 @@
             font-weight: bold;
             border-radius: 8px;
         }
-
         .title {
             font-size: 36px;
             font-weight: bold;
         }
-
         .clock {
             font-size: 42px;
             color: #38bdf8;
             font-family: monospace;
         }
-
-        /* CONTENEDOR EN FILAS */
         .grid-container {
             display: flex;
             flex-direction: column;
             gap: 20px;
             padding: 40px;
         }
-
-        /* TARJETA EN FORMATO FILA */
         .card {
             display: flex;
             flex-direction: row;
@@ -66,32 +56,14 @@
             border-radius: 10px;
             font-size: 26px;
         }
-
-        /* EN PROCESO */
         .card.en-proceso {
             border-left-color: #3b82f6;
             background-color: #172554;
         }
-
-        /* COLUMNAS */
-        .col {
-            flex: 1;
-        }
-
-        .empresa {
-            font-size: 32px;
-            font-weight: bold;
-        }
-
-        .componente {
-            color: #94a3b8;
-        }
-
-        .operario {
-            color: #fbbf24;
-            font-weight: bold;
-        }
-
+        .col { flex: 1; }
+        .empresa { font-size: 32px; font-weight: bold; }
+        .componente { color: #94a3b8; }
+        .operario { color: #fbbf24; font-weight: bold; }
         .estado {
             font-size: 22px;
             font-weight: bold;
@@ -100,12 +72,10 @@
             background-color: #fef3c7;
             color: #b45309;
         }
-
         .card.en-proceso .estado {
             background-color: #dbeafe;
             color: #1d4ed8;
         }
-
         .empty-state {
             text-align: center;
             font-size: 40px;
@@ -125,76 +95,60 @@
 </div>
 
 <div class="grid-container" id="contenedor-tareas">
-    <div class="empty-state">Cargando tareas...</div>
+    <div class="empty-state">Cargando tareas reales...</div>
 </div>
 
 <script>
-// --- Notación específica: Reloj ---
+// Reloj
 function actualizarReloj() {
     document.getElementById('reloj').textContent = new Date().toLocaleTimeString('es-PE');
 }
 setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
-// --- Notación específica: Renderizado visual ---
-function renderizarTareas(tareas) {
+// Renderizado
+function renderizar(lista) {
     const contenedor = document.getElementById('contenedor-tareas');
     contenedor.innerHTML = '';
-
-    if (!tareas || tareas.length === 0) {
+    if (!lista || lista.length === 0) {
         contenedor.innerHTML = '<div class="empty-state">NO HAY TAREAS PENDIENTES</div>';
         return;
     }
-
-    tareas.forEach(tarea => {
-        const enProceso = tarea.estado === "EN_PROCESO";
-        const card = document.createElement("div");
-        card.className = `card ${enProceso ? "en-proceso" : ""}`;
-        card.innerHTML = `
-            <div class="col empresa">${tarea.empresa}</div>
-            <div class="col componente">${tarea.componente}</div>
-            <div class="col operario">👤 ${tarea.operario_asignado || 'Sin asignar'}</div>
-            <div class="estado">${enProceso ? "EN PROCESO" : "PENDIENTE"}</div>
+    lista.forEach(t => {
+        const proc = t.estado === "EN_PROCESO";
+        const div = document.createElement("div");
+        div.className = `card ${proc ? "en-proceso" : ""}`;
+        div.innerHTML = `
+            <div class="col empresa">${t.empresa}</div>
+            <div class="col componente">${t.componente}</div>
+            <div class="col operario">👤 ${t.operario_asignado || 'Sin asignar'}</div>
+            <div class="estado">${proc ? "EN PROCESO" : "PENDIENTE"}</div>
         `;
-        contenedor.appendChild(card);
+        contenedor.appendChild(div);
     });
 }
 
-// --- Método de Disyunción: Conexión Real a TiDB ---
-const API_URL = "https://us-east-1.data.tidbcloud.com/api/v1beta/app/dataapp-sjoCrdWZ/endpoint/tareas";
-const PUBLIC_KEY = "C2UDOK40";
-const PRIVATE_KEY = "a0c7bcb7-bf10-4b88-a53a-c4a922f72aa3";
-const AUTH_HEADER = "Basic " + btoa(PUBLIC_KEY + ":" + PRIVATE_KEY);
+// Conexión TiDB
+const URL_API = "https://us-east-1.data.tidbcloud.com/api/v1beta/app/dataapp-sjoCrdWZ/endpoint/tareas";
+const CLAVE_P = "C2UDOK40";
+const CLAVE_S = "a0c7bcb7-bf10-4b88-a53a-c4a922f72aa3";
+const TOKEN = "Basic " + btoa(CLAVE_P + ":" + CLAVE_S);
 
-async function obtenerTareasEnVivo() {
+async function cargar() {
     try {
-        const respuesta = await fetch(API_URL, {
+        const res = await fetch(URL_API, {
             method: "GET",
-            mode: "cors",
-            headers: {
-                "Authorization": AUTH_HEADER,
-                "Accept": "application/json"
-            }
+            headers: { "Authorization": TOKEN, "Accept": "application/json" }
         });
-        
-        if (!respuesta.ok) throw new Error("Error en la respuesta de red");
-
-        const json = await respuesta.json();
-        
-        // Disyunción: Extraemos filas si existen datos
-        const tareasReales = (json.data && json.data.rows) ? json.data.rows : [];
-        renderizarTareas(tareasReales);
-
-    } catch (error) {
-        console.error("Error de conexión:", error);
-        // Mantenemos el estado de carga si hay un fallo temporal
+        const data = await res.json();
+        renderizar(data.data.rows);
+    } catch (e) {
+        console.error("Fallo:", e);
     }
 }
 
-// Ejecutar inmediatamente y recargar cada 10 segundos
-obtenerTareasEnVivo();
-setInterval(obtenerTareasEnVivo, 10000);
+cargar();
+setInterval(cargar, 10000);
 </script>
-
 </body>
 </html>
