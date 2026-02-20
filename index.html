@@ -1,186 +1,133 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diesel Pro - Tablero de Taller</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diesel Pro - Tablero de Taller</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0f172a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-<style>
+        /* CABECERA */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1e293b;
+            padding: 20px 50px;
+        }
 
-body {
-    margin: 0;
-    background-color: #0f172a;
-    color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-/* CABECERA */
+        .logo {
+            background-color: #f59e0b;
+            padding: 10px 20px;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #1e293b;
-    padding: 20px 50px;
-}
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+        }
 
-.logo-container {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
+        .clock {
+            font-size: 42px;
+            color: #38bdf8;
+            font-family: monospace;
+        }
 
-.logo {
-    background-color: #f59e0b;
-    padding: 10px 20px;
-    font-size: 28px;
-    font-weight: bold;
-    border-radius: 8px;
-}
+        /* CONTENEDOR EN FILAS */
+        .grid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 40px;
+        }
 
-.title {
-    font-size: 36px;
-    font-weight: bold;
-}
+        /* TARJETA EN FORMATO FILA */
+        .card {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1e293b;
+            border-left: 12px solid #f59e0b;
+            padding: 25px;
+            border-radius: 10px;
+            font-size: 26px;
+        }
 
-.clock {
-    font-size: 42px;
-    color: #38bdf8;
-    font-family: monospace;
-}
+        /* EN PROCESO */
+        .card.en-proceso {
+            border-left-color: #3b82f6;
+            background-color: #172554;
+        }
 
-/* CONTENEDOR EN FILAS */
+        /* COLUMNAS */
+        .col {
+            flex: 1;
+        }
 
-.grid-container {
+        .empresa {
+            font-size: 32px;
+            font-weight: bold;
+        }
 
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+        .componente {
+            color: #94a3b8;
+        }
 
-    padding: 40px;
+        .operario {
+            color: #fbbf24;
+            font-weight: bold;
+        }
 
-}
+        .estado {
+            font-size: 22px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background-color: #fef3c7;
+            color: #b45309;
+        }
 
-/* TARJETA EN FORMATO FILA */
+        .card.en-proceso .estado {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
 
-.card {
-
-    display: flex;
-    flex-direction: row;
-
-    justify-content: space-between;
-    align-items: center;
-
-    background-color: #1e293b;
-
-    border-left: 12px solid #f59e0b;
-
-    padding: 25px;
-
-    border-radius: 10px;
-
-    font-size: 26px;
-
-}
-
-/* EN PROCESO */
-
-.card.en-proceso {
-
-    border-left-color: #3b82f6;
-
-    background-color: #172554;
-
-}
-
-/* COLUMNAS */
-
-.col {
-
-    flex: 1;
-
-}
-
-.empresa {
-
-    font-size: 32px;
-    font-weight: bold;
-
-}
-
-.componente {
-
-    color: #94a3b8;
-
-}
-
-.operario {
-
-    color: #fbbf24;
-    font-weight: bold;
-
-}
-
-.estado {
-
-    font-size: 22px;
-    font-weight: bold;
-
-    padding: 10px 20px;
-    border-radius: 20px;
-
-    background-color: #fef3c7;
-    color: #b45309;
-
-}
-
-.card.en-proceso .estado {
-
-    background-color: #dbeafe;
-    color: #1d4ed8;
-
-}
-
-.empty-state {
-
-    text-align: center;
-    font-size: 40px;
-    padding: 100px;
-    color: #475569;
-
-}
-
-</style>
-
+        .empty-state {
+            text-align: center;
+            font-size: 40px;
+            padding: 100px;
+            color: #475569;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="header">
-
-<div class="logo-container">
-
-<div class="logo">DP</div>
-
-<div class="title">TAREAS EN TALLER</div>
-
-</div>
-
-<div class="clock" id="reloj"></div>
-
+    <div class="logo-container">
+        <div class="logo">DP</div>
+        <div class="title">TAREAS EN TALLER</div>
+    </div>
+    <div class="clock" id="reloj"></div>
 </div>
 
 <div class="grid-container" id="contenedor-tareas">
-
-<div class="empty-state">
-
-Cargando tareas...
-
+    <div class="empty-state">Cargando tareas...</div>
 </div>
 
-</div>
-
-<script>
 <script>
 // --- Notación específica: Reloj ---
 function actualizarReloj() {
@@ -221,35 +168,33 @@ const AUTH_HEADER = "Basic " + btoa(PUBLIC_KEY + ":" + PRIVATE_KEY);
 
 async function obtenerTareasEnVivo() {
     try {
-const respuesta = await fetch(API_URL, {
-    method: "GET",
-    mode: "cors", // <--- Agregamos esto explícitamente
-    headers: {
-        "Authorization": AUTH_HEADER,
-        "Accept": "application/json"
-    }
-});
+        const respuesta = await fetch(API_URL, {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Authorization": AUTH_HEADER,
+                "Accept": "application/json"
+            }
+        });
         
+        if (!respuesta.ok) throw new Error("Error en la respuesta de red");
+
         const json = await respuesta.json();
         
-        // Extraemos exclusivamente el arreglo de filas (rows)
-        const tareasReales = json.data.rows;
-        
+        // Disyunción: Extraemos filas si existen datos
+        const tareasReales = (json.data && json.data.rows) ? json.data.rows : [];
         renderizarTareas(tareasReales);
+
     } catch (error) {
         console.error("Error de conexión:", error);
-        document.getElementById('contenedor-tareas').innerHTML = '<div class="empty-state">Conectando al servidor... ⏳</div>';
+        // Mantenemos el estado de carga si hay un fallo temporal
     }
 }
 
-// Ejecutar inmediatamente y recargar los datos cada 10 segundos
+// Ejecutar inmediatamente y recargar cada 10 segundos
 obtenerTareasEnVivo();
 setInterval(obtenerTareasEnVivo, 10000);
 </script>
-</script>
 
 </body>
-
 </html>
-
-
