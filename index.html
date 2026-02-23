@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diesel Pro - Tablero de Taller</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             margin: 0;
             background-color: #0f172a;
@@ -18,160 +14,97 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
-        
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background-color: #1e293b;
             padding: 20px 50px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .logo {
-            background-color: #f59e0b;
-            padding: 10px 20px;
-            font-size: 28px;
-            font-weight: bold;
-            border-radius: 8px;
-            color: #0f172a;
-        }
-        
-        .title {
-            font-size: 36px;
-            font-weight: bold;
-            color: #f8fafc;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
+        .logo-container { display: flex; align-items: center; gap: 20px; }
+        .logo { background-color: #f59e0b; padding: 10px 20px; font-size: 28px; font-weight: bold; border-radius: 8px; color: #0f172a; }
+        .title { font-size: 36px; font-weight: bold; color: #f8fafc; }
+
+        .header-right { display: flex; align-items: center; gap: 20px; }
 
         .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 20px;
+            font-size: 14px; font-weight: bold;
             transition: all 0.3s ease;
         }
+        .status-badge.connected  { background-color: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+        .status-badge.disconnected { background-color: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
 
-        .status-badge.connected {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; }
+        .status-badge.connected .status-dot    { background-color: #10b981; }
+        .status-badge.disconnected .status-dot { background-color: #ef4444; animation: none; }
 
-        .status-badge.disconnected {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
+        .clock { font-size: 42px; color: #38bdf8; font-family: 'Courier New', monospace; font-weight: bold; }
 
-        .status-badge.connected .status-dot {
-            background-color: #10b981;
-        }
-
-        .status-badge.disconnected .status-dot {
-            background-color: #ef4444;
-            animation: none;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-        
-        .clock {
-            font-size: 42px;
-            color: #38bdf8;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
-        
         .grid-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            display: flex; flex-direction: column; gap: 15px;
             padding: 30px 40px;
             max-height: calc(100vh - 120px);
             overflow-y: auto;
         }
-        
-        .grid-container::-webkit-scrollbar { width: 10px; }
+        .grid-container::-webkit-scrollbar       { width: 10px; }
         .grid-container::-webkit-scrollbar-track { background: #1e293b; }
         .grid-container::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 5px; }
-        
+
         .card {
             display: grid;
-            grid-template-columns: 0.8fr 1.2fr 1fr 0.8fr 0.7fr 0.6fr;
-            gap: 15px;
-            align-items: center;
+            grid-template-columns: 0.8fr 1.2fr 1fr 0.8fr 0.9fr 0.6fr;
+            gap: 15px; align-items: center;
             background-color: #1e293b;
             border-left: 12px solid #f59e0b;
-            padding: 20px 25px;
-            border-radius: 10px;
+            padding: 20px 25px; border-radius: 10px;
             font-size: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        }
-        
+        .card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
         .card.en-proceso { border-left-color: #3b82f6; background-color: #172554; }
         .card.cotizado   { border-left-color: #8b5cf6; background-color: #2e1065; }
-        
+
         .col-fecha { display: flex; flex-direction: column; gap: 5px; }
         .fecha-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: bold; }
         .fecha-valor { font-size: 18px; color: #38bdf8; font-family: 'Courier New', monospace; font-weight: bold; }
-        
+
         .col-empresa { display: flex; flex-direction: column; gap: 3px; }
-        .empresa { font-size: 26px; font-weight: bold; color: #f8fafc; }
+        .empresa    { font-size: 26px; font-weight: bold; color: #f8fafc; }
         .componente { font-size: 18px; color: #94a3b8; }
-        
+
         .col-solicitante { display: flex; flex-direction: column; gap: 3px; }
         .solicitante-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; }
         .solicitante-valor { font-size: 20px; color: #fbbf24; font-weight: 600; }
-        
+
         .operario { color: #fbbf24; font-weight: bold; font-size: 20px; }
-        
+
+        /* ── Columna informe — ahora muestra el estado del informe ── */
         .col-informe { display: flex; align-items: center; justify-content: center; }
-        .badge-informe { padding: 8px 16px; border-radius: 20px; font-size: 16px; font-weight: bold; text-align: center; }
-        .badge-informe.si { background-color: #10b981; color: #ffffff; }
-        .badge-informe.no { background-color: #64748b; color: #cbd5e1; }
-        
+        .badge-informe { padding: 8px 14px; border-radius: 20px; font-size: 15px; font-weight: bold; text-align: center; }
+        .badge-informe.no-requiere  { background-color: #334155; color: #94a3b8; }
+        .badge-informe.pendiente    { background-color: #92400e; color: #fde68a; }
+        .badge-informe.listo        { background-color: #10b981; color: #ffffff; }
+
         .estado { font-size: 18px; font-weight: bold; padding: 10px 20px; border-radius: 20px; background-color: #fef3c7; color: #b45309; text-align: center; white-space: nowrap; }
         .card.en-proceso .estado { background-color: #dbeafe; color: #1d4ed8; }
-        .card.cotizado .estado   { background-color: #e9d5ff; color: #6b21a8; }
-        
+        .card.cotizado   .estado { background-color: #e9d5ff; color: #6b21a8; }
+
         .empty-state { text-align: center; font-size: 40px; padding: 100px; color: #475569; }
 
-        @keyframes flashUpdate {
-            0% { background-color: rgba(56, 189, 248, 0.3); }
-            100% { background-color: transparent; }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateX(0); max-height: 100px; }
+            to   { opacity: 0; transform: translateX(40px); max-height: 0; padding: 0; margin: 0; }
         }
-        .card.updated { animation: flashUpdate 1s ease-out; }
-        
+        .card.removing { animation: fadeOut 0.6s ease-out forwards; overflow: hidden; }
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(-20px); }
             to   { opacity: 1; transform: translateX(0); }
@@ -199,79 +132,100 @@
     <div class="empty-state">⏳ Conectando con Supabase...</div>
 </div>
 
-<!-- ✅ CDN con ruta UMD explícita — evita 404 -->
+<!-- ✅ CDN con ruta UMD explícita -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
-// CONFIGURACIÓN SUPABASE
-// ✅ Credenciales correctas — mismas que usa el ERP
+// CONFIGURACIÓN
 // ═══════════════════════════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://uobfergikgoxqqnmdbgw.supabase.co';
+const SUPABASE_URL     = 'https://uobfergikgoxqqnmdbgw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvYmZlcmdpa2dveHFxbm1kYmd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTU5OTAsImV4cCI6MjA4NzQzMTk5MH0.FhJr4aDyMOyPv6ea44aYQSZhxeAK3988M-Zb4oVDgww';
 
-// ✅ Renombrado a "db" para evitar colisión con el global window.supabase
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RELOJ
 // ═══════════════════════════════════════════════════════════════════════════
 function actualizarReloj() {
-    const ahora = new Date();
-    const horas   = String(ahora.getHours()).padStart(2, '0');
-    const minutos = String(ahora.getMinutes()).padStart(2, '0');
-    const segundos = String(ahora.getSeconds()).padStart(2, '0');
-    document.getElementById('reloj').textContent = `${horas}:${minutos}:${segundos}`;
+    const d = new Date();
+    document.getElementById('reloj').textContent =
+        `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
 }
 setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
 // ═══════════════════════════════════════════════════════════════════════════
-// STATUS BADGE
+// STATUS
 // ═══════════════════════════════════════════════════════════════════════════
 function setStatus(connected, text) {
     const badge = document.getElementById('status-badge');
-    const statusText = document.getElementById('status-text');
     badge.className = `status-badge ${connected ? 'connected' : 'disconnected'}`;
-    statusText.textContent = text || (connected ? '🟢 Realtime activo' : '🔴 Desconectado');
+    document.getElementById('status-text').textContent = text;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// RENDERIZAR TARJETAS
+// ✅ REGLA DE VISIBILIDAD
+//
+// Con informe  → ocultar cuando: informe_estado === 'LISTO' && nro_cotizacion_vinculada no vacío
+// Sin informe  → ocultar cuando: nro_cotizacion_vinculada no vacío
+// ═══════════════════════════════════════════════════════════════════════════
+function debeOcultarse(t) {
+    const tieneCotizacion = t.nro_cotizacion_vinculada && t.nro_cotizacion_vinculada.trim() !== '';
+
+    if (t.requiere_informe) {
+        // Debe cumplirse AMBAS condiciones
+        return t.informe_estado === 'LISTO' && tieneCotizacion;
+    } else {
+        // Solo necesita cotización
+        return tieneCotizacion;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BADGE DE INFORME — refleja el estado real
+// ═══════════════════════════════════════════════════════════════════════════
+function badgeInforme(t) {
+    if (!t.requiere_informe) {
+        return `<div class="badge-informe no-requiere">⚪ SIN INFORME</div>`;
+    }
+    if (t.informe_estado === 'LISTO') {
+        return `<div class="badge-informe listo">✅ INFORME LISTO</div>`;
+    }
+    return `<div class="badge-informe pendiente">⏳ INFORME PENDIENTE</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDERIZAR
 // ═══════════════════════════════════════════════════════════════════════════
 function renderizar(lista) {
     const contenedor = document.getElementById('contenedor-tareas');
     contenedor.innerHTML = '';
-    
-    if (!lista || lista.length === 0) {
-        contenedor.innerHTML = '<div class="empty-state">✅ NO HAY TAREAS PENDIENTES EN TALLER</div>';
+
+    // Filtrar usando la regla de visibilidad
+    const visibles = lista.filter(t => !debeOcultarse(t));
+
+    if (visibles.length === 0) {
+        contenedor.innerHTML = '<div class="empty-state">✅ NO HAY TAREAS ACTIVAS EN TALLER</div>';
         return;
     }
-    
-    lista.forEach(t => {
+
+    visibles.forEach(t => {
         const enProceso = t.estado === 'EN_PROCESO';
         const cotizado  = t.estado === 'COTIZADO';
-        const tieneInforme = t.informe_estado && t.informe_estado.trim() !== '';
-        
+
         let fechaFormateada = 'Sin fecha';
         if (t.fecha_ingreso) {
             try {
-                const fecha = new Date(t.fecha_ingreso);
-                const dia  = String(fecha.getDate()).padStart(2, '0');
-                const mes  = String(fecha.getMonth() + 1).padStart(2, '0');
-                const año  = fecha.getFullYear();
-                const hora = String(fecha.getHours()).padStart(2, '0');
-                const min  = String(fecha.getMinutes()).padStart(2, '0');
-                fechaFormateada = `${dia}/${mes}/${año} ${hora}:${min}`;
-            } catch (e) {
-                fechaFormateada = t.fecha_ingreso;
-            }
+                const f = new Date(t.fecha_ingreso);
+                fechaFormateada = `${String(f.getDate()).padStart(2,'0')}/${String(f.getMonth()+1).padStart(2,'0')}/${f.getFullYear()} ${String(f.getHours()).padStart(2,'0')}:${String(f.getMinutes()).padStart(2,'0')}`;
+            } catch { fechaFormateada = t.fecha_ingreso; }
         }
-        
+
         const div = document.createElement('div');
         div.className = `card ${cotizado ? 'cotizado' : (enProceso ? 'en-proceso' : '')}`;
         div.dataset.id = t.id_tarea;
-        
+
         div.innerHTML = `
             <div class="col-fecha">
                 <span class="fecha-label">📅 Ingreso</span>
@@ -285,39 +239,31 @@ function renderizar(lista) {
                 <span class="solicitante-label">👤 Solicitante</span>
                 <span class="solicitante-valor">${t.solicitante || 'No especificado'}</span>
             </div>
-            <div class="operario">
-                🔧 ${t.operario_asignado || 'Sin asignar'}
-            </div>
-            <div class="col-informe">
-                <div class="badge-informe ${tieneInforme ? 'si' : 'no'}">
-                    ${tieneInforme ? '📋 CON INFORME' : '⚪ SIN INFORME'}
-                </div>
-            </div>
+            <div class="operario">🔧 ${t.operario_asignado || 'Sin asignar'}</div>
+            <div class="col-informe">${badgeInforme(t)}</div>
             <div class="estado">
                 ${cotizado ? '📄 COTIZADO' : (enProceso ? '⚙️ EN PROCESO' : '📋 PENDIENTE')}
             </div>
         `;
-        
+
         contenedor.appendChild(div);
     });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CARGA INICIAL
+// CARGA INICIAL — trae todas las tareas no terminadas
 // ═══════════════════════════════════════════════════════════════════════════
 async function cargarInicial() {
     try {
-        console.log('🔄 Carga inicial desde Supabase...');
-        // ✅ Usar "db" en lugar de "supabase"
         const { data, error } = await db
             .from('tareas_taller')
             .select('*')
             .in('estado', ['PENDIENTE', 'EN_PROCESO', 'COTIZADO'])
             .order('fecha_ingreso', { ascending: true });
-        
+
         if (error) throw error;
-        
-        console.log(`✅ ${data.length} tareas cargadas`);
+
+        console.log(`✅ ${data.length} tareas cargadas (antes de filtro de visibilidad)`);
         renderizar(data);
         return true;
     } catch (e) {
@@ -329,22 +275,32 @@ async function cargarInicial() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// REALTIME — WebSocket
+// REALTIME — WebSocket con lógica de desvanecimiento instantáneo
 // ═══════════════════════════════════════════════════════════════════════════
 function iniciarRealtime() {
-    // ✅ Usar "db" en lugar de "supabase"
     const channel = db
         .channel('tareas-taller-tv')
-        .on(
-            'postgres_changes',
-            {
-                event: '*',
-                schema: 'public',
-                table: 'tareas_taller'
-            },
+        .on('postgres_changes',
+            { event: '*', schema: 'public', table: 'tareas_taller' },
             (payload) => {
-                console.log('📡 Cambio detectado:', payload.eventType, payload);
-                cargarInicial();
+                console.log('📡 Cambio detectado:', payload.eventType, payload.new || payload.old);
+
+                if (payload.eventType === 'DELETE') {
+                    // Tarea eliminada físicamente → animar y quitar
+                    animarYQuitar(payload.old.id_tarea);
+                    return;
+                }
+
+                const tarea = payload.new;
+
+                if (payload.eventType === 'UPDATE' && debeOcultarse(tarea)) {
+                    // ✅ La tarea cumple las condiciones para desaparecer → animar
+                    console.log(`✅ Tarea #${tarea.id_tarea} cumple condición de ocultamiento`);
+                    animarYQuitar(tarea.id_tarea);
+                } else {
+                    // INSERT o UPDATE que no oculta → recargar para mantener consistencia
+                    cargarInicial();
+                }
             }
         )
         .subscribe((status) => {
@@ -352,13 +308,32 @@ function iniciarRealtime() {
             if (status === 'SUBSCRIBED') {
                 setStatus(true, '🟢 Realtime activo');
             } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-                setStatus(false, '🔴 Error de conexión');
-                setTimeout(() => {
-                    channel.unsubscribe();
-                    iniciarRealtime();
-                }, 5000);
+                setStatus(false, '🔴 Reconectando...');
+                setTimeout(() => { channel.unsubscribe(); iniciarRealtime(); }, 5000);
             }
         });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ANIMAR Y QUITAR — desvanece la tarjeta antes de eliminarla del DOM
+// ═══════════════════════════════════════════════════════════════════════════
+function animarYQuitar(idTarea) {
+    const card = document.querySelector(`.card[data-id="${idTarea}"]`);
+    if (!card) {
+        // No estaba visible, recargar por si acaso
+        cargarInicial();
+        return;
+    }
+
+    card.classList.add('removing');
+    card.addEventListener('animationend', () => {
+        card.remove();
+        // Si no quedan tarjetas, mostrar estado vacío
+        const contenedor = document.getElementById('contenedor-tareas');
+        if (contenedor.querySelectorAll('.card').length === 0) {
+            contenedor.innerHTML = '<div class="empty-state">✅ NO HAY TAREAS ACTIVAS EN TALLER</div>';
+        }
+    }, { once: true });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
