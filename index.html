@@ -166,7 +166,6 @@
         
         .empty-state { text-align: center; font-size: 40px; padding: 100px; color: #475569; }
 
-        /* Flash de actualización */
         @keyframes flashUpdate {
             0% { background-color: rgba(56, 189, 248, 0.3); }
             100% { background-color: transparent; }
@@ -200,27 +199,26 @@
     <div class="empty-state">⏳ Conectando con Supabase...</div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- SUPABASE JS SDK (CDN) -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- ✅ CDN con ruta UMD explícita — evita 404 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURACIÓN SUPABASE
+// ✅ Credenciales correctas — mismas que usa el ERP
 // ═══════════════════════════════════════════════════════════════════════════
-// ✅ Las mismas que usa el ERP
-const SUPABASE_URL = 'https://uobfergikgoxqqnmdbgw.supabase.co';
+const SUPABASE_URL  = 'https://uobfergikgoxqqnmdbgw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvYmZlcmdpa2dveHFxbm1kYmd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTU5OTAsImV4cCI6MjA4NzQzMTk5MH0.FhJr4aDyMOyPv6ea44aYQSZhxeAK3988M-Zb4oVDgww';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ✅ Renombrado a "db" para evitar colisión con el global window.supabase
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ═══════════════════════════════════════════════════════════════════════════
-// RELOJ EN TIEMPO REAL
+// RELOJ
 // ═══════════════════════════════════════════════════════════════════════════
 function actualizarReloj() {
     const ahora = new Date();
-    const horas = String(ahora.getHours()).padStart(2, '0');
+    const horas   = String(ahora.getHours()).padStart(2, '0');
     const minutos = String(ahora.getMinutes()).padStart(2, '0');
     const segundos = String(ahora.getSeconds()).padStart(2, '0');
     document.getElementById('reloj').textContent = `${horas}:${minutos}:${segundos}`;
@@ -251,27 +249,27 @@ function renderizar(lista) {
     }
     
     lista.forEach(t => {
-        const enProceso = t.estado === "EN_PROCESO";
-        const cotizado = t.estado === "COTIZADO";
+        const enProceso = t.estado === 'EN_PROCESO';
+        const cotizado  = t.estado === 'COTIZADO';
         const tieneInforme = t.informe_estado && t.informe_estado.trim() !== '';
         
         let fechaFormateada = 'Sin fecha';
         if (t.fecha_ingreso) {
             try {
                 const fecha = new Date(t.fecha_ingreso);
-                const dia = String(fecha.getDate()).padStart(2, '0');
-                const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-                const año = fecha.getFullYear();
+                const dia  = String(fecha.getDate()).padStart(2, '0');
+                const mes  = String(fecha.getMonth() + 1).padStart(2, '0');
+                const año  = fecha.getFullYear();
                 const hora = String(fecha.getHours()).padStart(2, '0');
-                const min = String(fecha.getMinutes()).padStart(2, '0');
+                const min  = String(fecha.getMinutes()).padStart(2, '0');
                 fechaFormateada = `${dia}/${mes}/${año} ${hora}:${min}`;
             } catch (e) {
                 fechaFormateada = t.fecha_ingreso;
             }
         }
         
-        const div = document.createElement("div");
-        div.className = `card ${cotizado ? "cotizado" : (enProceso ? "en-proceso" : "")}`;
+        const div = document.createElement('div');
+        div.className = `card ${cotizado ? 'cotizado' : (enProceso ? 'en-proceso' : '')}`;
         div.dataset.id = t.id_tarea;
         
         div.innerHTML = `
@@ -305,12 +303,13 @@ function renderizar(lista) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CARGA INICIAL — REST API de Supabase
+// CARGA INICIAL
 // ═══════════════════════════════════════════════════════════════════════════
 async function cargarInicial() {
     try {
         console.log('🔄 Carga inicial desde Supabase...');
-        const { data, error } = await supabase
+        // ✅ Usar "db" en lugar de "supabase"
+        const { data, error } = await db
             .from('tareas_taller')
             .select('*')
             .in('estado', ['PENDIENTE', 'EN_PROCESO', 'COTIZADO'])
@@ -322,29 +321,29 @@ async function cargarInicial() {
         renderizar(data);
         return true;
     } catch (e) {
-        console.error("❌ Error carga inicial:", e);
-        document.getElementById('contenedor-tareas').innerHTML = 
+        console.error('❌ Error carga inicial:', e);
+        document.getElementById('contenedor-tareas').innerHTML =
             '<div class="empty-state">⚠️ ERROR DE CONEXIÓN CON SUPABASE</div>';
         return false;
     }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🔥 REALTIME — WebSocket (sin polling, sin consumo en reposo)
+// REALTIME — WebSocket
 // ═══════════════════════════════════════════════════════════════════════════
 function iniciarRealtime() {
-    const channel = supabase
+    // ✅ Usar "db" en lugar de "supabase"
+    const channel = db
         .channel('tareas-taller-tv')
         .on(
             'postgres_changes',
             {
-                event: '*',              // INSERT, UPDATE, DELETE
+                event: '*',
                 schema: 'public',
                 table: 'tareas_taller'
             },
             (payload) => {
                 console.log('📡 Cambio detectado:', payload.eventType, payload);
-                // Recargar toda la lista para mantener consistencia
                 cargarInicial();
             }
         )
@@ -352,11 +351,8 @@ function iniciarRealtime() {
             console.log('📡 Realtime status:', status);
             if (status === 'SUBSCRIBED') {
                 setStatus(true, '🟢 Realtime activo');
-                console.log('✅ Suscripción Realtime activa — sin polling');
             } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
                 setStatus(false, '🔴 Error de conexión');
-                console.error('❌ Error en Realtime, reintentando...');
-                // Reintentar en 5 segundos
                 setTimeout(() => {
                     channel.unsubscribe();
                     iniciarRealtime();
@@ -374,16 +370,12 @@ function iniciarRealtime() {
         iniciarRealtime();
     } else {
         setStatus(false, '🔴 Sin conexión');
-        // Reintentar cada 10s si falla la carga inicial
         setInterval(async () => {
             const retry = await cargarInicial();
-            if (retry) {
-                iniciarRealtime();
-            }
+            if (retry) iniciarRealtime();
         }, 10000);
     }
 })();
 </script>
 </body>
 </html>
-
