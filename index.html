@@ -263,7 +263,7 @@ function crearCard(t) {
         <div class="operario">🔧 ${t.operario_asignado || 'Sin asignar'}</div>
         <div class="col-informe">${badgeInforme(t)}</div>
         <div class="estado">
-            ${cotizado ? '📄 COTIZADO' : (enProceso ? '⚙️ EN PROCESO' : '📋 PENDIENTE')}
+            ${cotizado ? '📄 COTIZADO' : (enProceso ? '⚙️ EN PROCESO' : '📋 COT_PEND')}
         </div>
     `;
     return div;
@@ -456,3 +456,4 @@ function iniciarRealtime() {
 </script>
 </body>
 </html>
+
