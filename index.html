@@ -48,6 +48,56 @@
             font-weight: bold;
             color: #f8fafc;
         }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.connected {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.disconnected {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.connected .status-dot {
+            background-color: #10b981;
+        }
+
+        .status-badge.disconnected .status-dot {
+            background-color: #ef4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
         
         .clock {
             font-size: 42px;
@@ -65,19 +115,9 @@
             overflow-y: auto;
         }
         
-        /* Scrollbar personalizado */
-        .grid-container::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        .grid-container::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        
-        .grid-container::-webkit-scrollbar-thumb {
-            background: #f59e0b;
-            border-radius: 5px;
-        }
+        .grid-container::-webkit-scrollbar { width: 10px; }
+        .grid-container::-webkit-scrollbar-track { background: #1e293b; }
+        .grid-container::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 5px; }
         
         .card {
             display: grid;
@@ -98,147 +138,46 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
         
-        .card.en-proceso {
-            border-left-color: #3b82f6;
-            background-color: #172554;
-        }
+        .card.en-proceso { border-left-color: #3b82f6; background-color: #172554; }
+        .card.cotizado   { border-left-color: #8b5cf6; background-color: #2e1065; }
         
-        .card.cotizado {
-            border-left-color: #8b5cf6;
-            background-color: #2e1065;
-        }
+        .col-fecha { display: flex; flex-direction: column; gap: 5px; }
+        .fecha-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: bold; }
+        .fecha-valor { font-size: 18px; color: #38bdf8; font-family: 'Courier New', monospace; font-weight: bold; }
         
-        /* ✅ COLUMNAS ACTUALIZADAS */
-        .col-fecha {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+        .col-empresa { display: flex; flex-direction: column; gap: 3px; }
+        .empresa { font-size: 26px; font-weight: bold; color: #f8fafc; }
+        .componente { font-size: 18px; color: #94a3b8; }
         
-        .fecha-label {
-            font-size: 12px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
+        .col-solicitante { display: flex; flex-direction: column; gap: 3px; }
+        .solicitante-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; }
+        .solicitante-valor { font-size: 20px; color: #fbbf24; font-weight: 600; }
         
-        .fecha-valor {
-            font-size: 18px;
-            color: #38bdf8;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
+        .operario { color: #fbbf24; font-weight: bold; font-size: 20px; }
         
-        .col-empresa {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
+        .col-informe { display: flex; align-items: center; justify-content: center; }
+        .badge-informe { padding: 8px 16px; border-radius: 20px; font-size: 16px; font-weight: bold; text-align: center; }
+        .badge-informe.si { background-color: #10b981; color: #ffffff; }
+        .badge-informe.no { background-color: #64748b; color: #cbd5e1; }
         
-        .empresa {
-            font-size: 26px;
-            font-weight: bold;
-            color: #f8fafc;
-        }
+        .estado { font-size: 18px; font-weight: bold; padding: 10px 20px; border-radius: 20px; background-color: #fef3c7; color: #b45309; text-align: center; white-space: nowrap; }
+        .card.en-proceso .estado { background-color: #dbeafe; color: #1d4ed8; }
+        .card.cotizado .estado   { background-color: #e9d5ff; color: #6b21a8; }
         
-        .componente {
-            font-size: 18px;
-            color: #94a3b8;
+        .empty-state { text-align: center; font-size: 40px; padding: 100px; color: #475569; }
+
+        /* Flash de actualización */
+        @keyframes flashUpdate {
+            0% { background-color: rgba(56, 189, 248, 0.3); }
+            100% { background-color: transparent; }
         }
+        .card.updated { animation: flashUpdate 1s ease-out; }
         
-        .col-solicitante {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-        
-        .solicitante-label {
-            font-size: 12px;
-            color: #94a3b8;
-            text-transform: uppercase;
-        }
-        
-        .solicitante-valor {
-            font-size: 20px;
-            color: #fbbf24;
-            font-weight: 600;
-        }
-        
-        .operario {
-            color: #fbbf24;
-            font-weight: bold;
-            font-size: 20px;
-        }
-        
-        /* ✅ NUEVO: Badge de Informe */
-        .col-informe {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .badge-informe {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-        }
-        
-        .badge-informe.si {
-            background-color: #10b981;
-            color: #ffffff;
-        }
-        
-        .badge-informe.no {
-            background-color: #64748b;
-            color: #cbd5e1;
-        }
-        
-        .estado {
-            font-size: 18px;
-            font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 20px;
-            background-color: #fef3c7;
-            color: #b45309;
-            text-align: center;
-            white-space: nowrap;
-        }
-        
-        .card.en-proceso .estado {
-            background-color: #dbeafe;
-            color: #1d4ed8;
-        }
-        
-        .card.cotizado .estado {
-            background-color: #e9d5ff;
-            color: #6b21a8;
-        }
-        
-        .empty-state {
-            text-align: center;
-            font-size: 40px;
-            padding: 100px;
-            color: #475569;
-            grid-column: 1 / -1;
-        }
-        
-        /* Animación de entrada */
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-20px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
-        
-        .card {
-            animation: slideIn 0.3s ease-out;
-        }
+        .card { animation: slideIn 0.3s ease-out; }
     </style>
 </head>
 <body>
@@ -248,14 +187,33 @@
         <div class="logo">DP</div>
         <div class="title">TAREAS EN TALLER</div>
     </div>
-    <div class="clock" id="reloj"></div>
+    <div class="header-right">
+        <div class="status-badge disconnected" id="status-badge">
+            <div class="status-dot"></div>
+            <span id="status-text">Conectando...</span>
+        </div>
+        <div class="clock" id="reloj"></div>
+    </div>
 </div>
 
 <div class="grid-container" id="contenedor-tareas">
-    <div class="empty-state">Cargando tareas...</div>
+    <div class="empty-state">⏳ Conectando con Supabase...</div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- SUPABASE JS SDK (CDN) -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+// ═══════════════════════════════════════════════════════════════════════════
+// CONFIGURACIÓN SUPABASE
+// ═══════════════════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://tahlhiubvhbivqmnoolk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_NK-dS5WtaCNjFClShv_toQ_nQHNSGNf';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // ═══════════════════════════════════════════════════════════════════════════
 // RELOJ EN TIEMPO REAL
 // ═══════════════════════════════════════════════════════════════════════════
@@ -270,7 +228,17 @@ setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FUNCIÓN DE RENDERIZADO ACTUALIZADA
+// STATUS BADGE
+// ═══════════════════════════════════════════════════════════════════════════
+function setStatus(connected, text) {
+    const badge = document.getElementById('status-badge');
+    const statusText = document.getElementById('status-text');
+    badge.className = `status-badge ${connected ? 'connected' : 'disconnected'}`;
+    statusText.textContent = text || (connected ? '🟢 Realtime activo' : '🔴 Desconectado');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDERIZAR TARJETAS
 // ═══════════════════════════════════════════════════════════════════════════
 function renderizar(lista) {
     const contenedor = document.getElementById('contenedor-tareas');
@@ -286,7 +254,6 @@ function renderizar(lista) {
         const cotizado = t.estado === "COTIZADO";
         const tieneInforme = t.informe_estado && t.informe_estado.trim() !== '';
         
-        // ✅ Formatear fecha de ingreso
         let fechaFormateada = 'Sin fecha';
         if (t.fecha_ingreso) {
             try {
@@ -304,33 +271,29 @@ function renderizar(lista) {
         
         const div = document.createElement("div");
         div.className = `card ${cotizado ? "cotizado" : (enProceso ? "en-proceso" : "")}`;
+        div.dataset.id = t.id_tarea;
         
         div.innerHTML = `
             <div class="col-fecha">
                 <span class="fecha-label">📅 Ingreso</span>
                 <span class="fecha-valor">${fechaFormateada}</span>
             </div>
-            
             <div class="col-empresa">
                 <div class="empresa">${t.empresa || 'Sin nombre'}</div>
                 <div class="componente">${t.componente || 'Sin especificar'}</div>
             </div>
-            
             <div class="col-solicitante">
                 <span class="solicitante-label">👤 Solicitante</span>
                 <span class="solicitante-valor">${t.solicitante || 'No especificado'}</span>
             </div>
-            
             <div class="operario">
                 🔧 ${t.operario_asignado || 'Sin asignar'}
             </div>
-            
             <div class="col-informe">
                 <div class="badge-informe ${tieneInforme ? 'si' : 'no'}">
                     ${tieneInforme ? '📋 CON INFORME' : '⚪ SIN INFORME'}
                 </div>
             </div>
-            
             <div class="estado">
                 ${cotizado ? '📄 COTIZADO' : (enProceso ? '⚙️ EN PROCESO' : '📋 PENDIENTE')}
             </div>
@@ -341,41 +304,84 @@ function renderizar(lista) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CONEXIÓN A TiDB CLOUD
+// CARGA INICIAL — REST API de Supabase
 // ═══════════════════════════════════════════════════════════════════════════
-const URL_API = "https://us-east-1.data.tidbcloud.com/api/v1beta/app/dataapp-sjoCrdWZ/endpoint/tareas";
-const CLAVE_P = "C2UDOK40";
-const CLAVE_S = "a0c7bcb7-bf10-4b88-a53a-c4a922f72aa3";
-const TOKEN = "Basic " + btoa(CLAVE_P + ":" + CLAVE_S);
-
-async function cargar() {
+async function cargarInicial() {
     try {
-        console.log('🔄 Cargando tareas desde TiDB...');
-        const res = await fetch(URL_API, {
-            method: "GET",
-            headers: { 
-                "Authorization": TOKEN, 
-                "Accept": "application/json" 
-            }
-        });
+        console.log('🔄 Carga inicial desde Supabase...');
+        const { data, error } = await supabase
+            .from('tareas_taller')
+            .select('*')
+            .in('estado', ['PENDIENTE', 'EN_PROCESO', 'COTIZADO'])
+            .order('fecha_ingreso', { ascending: true });
         
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        }
+        if (error) throw error;
         
-        const data = await res.json();
-        console.log('✅ Tareas recibidas:', data.data.rows.length);
-        renderizar(data.data.rows);
+        console.log(`✅ ${data.length} tareas cargadas`);
+        renderizar(data);
+        return true;
     } catch (e) {
-        console.error("❌ Error al cargar tareas:", e);
+        console.error("❌ Error carga inicial:", e);
         document.getElementById('contenedor-tareas').innerHTML = 
-            '<div class="empty-state">⚠️ ERROR DE CONEXIÓN CON LA BASE DE DATOS</div>';
+            '<div class="empty-state">⚠️ ERROR DE CONEXIÓN CON SUPABASE</div>';
+        return false;
     }
 }
 
-// Cargar inmediatamente y luego cada 10 segundos
-cargar();
-setInterval(cargar, 10000);
+// ═══════════════════════════════════════════════════════════════════════════
+// 🔥 REALTIME — WebSocket (sin polling, sin consumo en reposo)
+// ═══════════════════════════════════════════════════════════════════════════
+function iniciarRealtime() {
+    const channel = supabase
+        .channel('tareas-taller-tv')
+        .on(
+            'postgres_changes',
+            {
+                event: '*',              // INSERT, UPDATE, DELETE
+                schema: 'public',
+                table: 'tareas_taller'
+            },
+            (payload) => {
+                console.log('📡 Cambio detectado:', payload.eventType, payload);
+                // Recargar toda la lista para mantener consistencia
+                cargarInicial();
+            }
+        )
+        .subscribe((status) => {
+            console.log('📡 Realtime status:', status);
+            if (status === 'SUBSCRIBED') {
+                setStatus(true, '🟢 Realtime activo');
+                console.log('✅ Suscripción Realtime activa — sin polling');
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                setStatus(false, '🔴 Error de conexión');
+                console.error('❌ Error en Realtime, reintentando...');
+                // Reintentar en 5 segundos
+                setTimeout(() => {
+                    channel.unsubscribe();
+                    iniciarRealtime();
+                }, 5000);
+            }
+        });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INICIO
+// ═══════════════════════════════════════════════════════════════════════════
+(async () => {
+    const ok = await cargarInicial();
+    if (ok) {
+        iniciarRealtime();
+    } else {
+        setStatus(false, '🔴 Sin conexión');
+        // Reintentar cada 10s si falla la carga inicial
+        setInterval(async () => {
+            const retry = await cargarInicial();
+            if (retry) {
+                iniciarRealtime();
+            }
+        }, 10000);
+    }
+})();
 </script>
 </body>
 </html>
