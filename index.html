@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diesel Pro - Tablero de Taller</title>
+    <title>Diesel Pro - Monitor de Taller</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            margin: 0;
             background-color: #0f172a;
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -52,46 +51,39 @@
         .grid-container::-webkit-scrollbar-track { background: #1e293b; }
         .grid-container::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 5px; }
 
-        /* ── TARJETA BASE ── */
+        /* ── TARJETA ── */
         .card {
             display: grid;
-            grid-template-columns: 0.8fr 1.2fr 1fr 0.8fr 1fr 0.7fr;
+            grid-template-columns: 0.8fr 1.3fr 1fr 0.9fr 1fr 0.65fr;
             gap: 15px; align-items: center;
             background-color: #1e293b;
             border-left: 12px solid #f59e0b;
             padding: 20px 25px; border-radius: 10px;
             font-size: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
             position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         .card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
-
         .card.en-proceso { border-left-color: #3b82f6; background-color: #172554; }
         .card.cotizado   { border-left-color: #8b5cf6; background-color: #2e1065; }
 
-        /* ── Tarjeta en salida: borde verde parpadeante + countdown ── */
+        /* Tarjeta en salida — verde parpadeante */
         .card.saliendo {
             border-left-color: #10b981 !important;
             background-color: #052e16 !important;
-            box-shadow: 0 0 20px rgba(16,185,129,0.4) !important;
             animation: parpadeo 1s ease-in-out infinite;
         }
         @keyframes parpadeo {
             0%,100% { box-shadow: 0 0 20px rgba(16,185,129,0.4); }
-            50%      { box-shadow: 0 0 40px rgba(16,185,129,0.9); }
+            50%      { box-shadow: 0 0 45px rgba(16,185,129,0.9); }
         }
 
-        /* Countdown overlay */
         .countdown-badge {
-            position: absolute;
-            top: 10px; right: 15px;
-            background-color: #10b981;
-            color: white;
-            font-size: 13px;
-            font-weight: bold;
-            padding: 4px 12px;
-            border-radius: 12px;
+            position: absolute; top: 10px; right: 15px;
+            background-color: #10b981; color: white;
+            font-size: 13px; font-weight: bold;
+            padding: 4px 14px; border-radius: 12px;
         }
 
         @keyframes fadeOut {
@@ -121,32 +113,40 @@
 
         .operario { color: #fbbf24; font-weight: bold; font-size: 19px; }
 
-        /* ── Badge de informe ── */
+        /* ── Badge informe — usa informe_listo (bool) ── */
         .col-informe { display: flex; align-items: center; justify-content: center; }
         .badge-informe {
-            padding: 9px 14px; border-radius: 20px;
+            padding: 9px 16px; border-radius: 20px;
             font-size: 15px; font-weight: bold; text-align: center;
-            transition: all 0.5s ease;
         }
-        /* No requiere informe */
-        .badge-informe.no-requiere { background-color: #1e293b; color: #475569; border: 1px solid #334155; }
-        /* Requiere informe — pendiente */
-        .badge-informe.pendiente   { background-color: #431407; color: #fed7aa; border: 1px solid #92400e; }
-        /* ✅ Informe listo — highlight llamativo */
+        /* Sin informe requerido → vacío/invisible */
+        .badge-informe.sin-informe {
+            background: transparent; color: transparent;
+            border: none; pointer-events: none;
+        }
+        /* Requiere informe, pendiente */
+        .badge-informe.pendiente {
+            background-color: #431407; color: #fed7aa;
+            border: 1px solid #92400e;
+        }
+        /* ✅ informe_listo = true → glow verde */
         .badge-informe.listo {
-            background-color: #10b981;
-            color: #ffffff;
-            border: none;
-            box-shadow: 0 0 14px rgba(16,185,129,0.7);
+            background-color: #10b981; color: #ffffff;
+            box-shadow: 0 0 16px rgba(16,185,129,0.8);
             animation: glowInforme 2s ease-in-out infinite;
         }
         @keyframes glowInforme {
             0%,100% { box-shadow: 0 0 10px rgba(16,185,129,0.5); }
-            50%      { box-shadow: 0 0 22px rgba(16,185,129,1.0); }
+            50%      { box-shadow: 0 0 28px rgba(16,185,129,1.0); }
         }
 
         /* ── Estado ── */
-        .estado { font-size: 17px; font-weight: bold; padding: 10px 18px; border-radius: 20px; background-color: #fef3c7; color: #b45309; text-align: center; white-space: nowrap; }
+        .estado {
+            font-size: 17px; font-weight: bold;
+            padding: 10px 18px; border-radius: 20px;
+            background-color: #fef3c7; color: #b45309;
+            text-align: center; white-space: nowrap;
+        }
         .card.en-proceso .estado { background-color: #dbeafe; color: #1d4ed8; }
         .card.cotizado   .estado { background-color: #e9d5ff; color: #6b21a8; }
         .card.saliendo   .estado { background-color: #d1fae5; color: #065f46; }
@@ -175,17 +175,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
 <script>
-// ═══════════════════════════════════════════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════════════════════════════════════════
+
 const SUPABASE_URL      = 'https://uobfergikgoxqqnmdbgw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvYmZlcmdpa2dveHFxbm1kYmd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTU5OTAsImV4cCI6MjA4NzQzMTk5MH0.FhJr4aDyMOyPv6ea44aYQSZhxeAK3988M-Zb4oVDgww';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Mapa de timers activos: id_tarea → timer id
-const timersсалида = {};
+// Timers activos de countdown: { id_tarea: intervalId }
+const timersActivos = {};
 
 // ─────────────────────────────────────────────────────────────────────────
 // RELOJ
@@ -198,9 +195,6 @@ function actualizarReloj() {
 setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
-// ─────────────────────────────────────────────────────────────────────────
-// STATUS BADGE
-// ─────────────────────────────────────────────────────────────────────────
 function setStatus(connected, text) {
     const badge = document.getElementById('status-badge');
     badge.className = `status-badge ${connected ? 'connected' : 'disconnected'}`;
@@ -209,28 +203,30 @@ function setStatus(connected, text) {
 
 // ─────────────────────────────────────────────────────────────────────────
 // ✅ CONDICIÓN DE SALIDA
-// (NOT requiere_informe OR informe_listo) AND nro_cotizacion_vinculada NOT NULL
+// (NOT requiere_informe  OR  informe_listo)  AND  tiene_cotizacion
 // ─────────────────────────────────────────────────────────────────────────
 function cumpleCondicionSalida(t) {
     const tieneCotizacion = t.nro_cotizacion_vinculada && t.nro_cotizacion_vinculada.trim() !== '';
-    const informeOK       = !t.requiere_informe || t.informe_estado === 'LISTO';
+    const informeOK       = !t.requiere_informe || t.informe_listo === true;
     return informeOK && tieneCotizacion;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// BADGE DE INFORME
+// BADGE DE INFORME — usa informe_listo (bool)
 // ─────────────────────────────────────────────────────────────────────────
 function badgeInforme(t) {
+    // Sin informe requerido → celda vacía, no muestra nada
     if (!t.requiere_informe)
-        return `<div class="badge-informe no-requiere">— Sin informe</div>`;
-    if (t.informe_estado === 'LISTO')
+        return `<div class="badge-informe sin-informe"></div>`;
+
+    // Requiere informe y ya está listo (confirmado en ERP)
+    if (t.informe_listo === true)
         return `<div class="badge-informe listo">✅ INFORME LISTO</div>`;
+
+    // Requiere informe pero aún pendiente
     return `<div class="badge-informe pendiente">⏳ Informe pendiente</div>`;
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// FORMATEAR FECHA
-// ─────────────────────────────────────────────────────────────────────────
 function formatFecha(raw) {
     if (!raw) return 'Sin fecha';
     try {
@@ -270,72 +266,60 @@ function crearCard(t) {
             ${cotizado ? '📄 COTIZADO' : (enProceso ? '⚙️ EN PROCESO' : '📋 PENDIENTE')}
         </div>
     `;
-
     return div;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// ACTUALIZAR TARJETA EXISTENTE (sin recrearla para no perder animaciones)
+// ACTUALIZAR TARJETA EXISTENTE (solo campos que cambian)
 // ─────────────────────────────────────────────────────────────────────────
 function actualizarCard(card, t) {
-    const enProceso = t.estado === 'EN_PROCESO';
-    const cotizado  = t.estado === 'COTIZADO';
+    // Badge informe
+    const col = card.querySelector('.col-informe');
+    if (col) col.innerHTML = badgeInforme(t);
 
-    // Actualizar clases de estado
-    card.className = card.className
-        .replace(/\b(en-proceso|cotizado)\b/g, '').trim();
-    if (cotizado)  card.classList.add('cotizado');
-    if (enProceso) card.classList.add('en-proceso');
-
-    // Actualizar badge de informe
-    const colInforme = card.querySelector('.col-informe');
-    if (colInforme) colInforme.innerHTML = badgeInforme(t);
-
-    // Actualizar estado
+    // Estado
     const estadoDiv = card.querySelector('.estado');
-    if (estadoDiv)
+    if (estadoDiv) {
+        const cotizado  = t.estado === 'COTIZADO';
+        const enProceso = t.estado === 'EN_PROCESO';
         estadoDiv.textContent = cotizado ? '📄 COTIZADO' : (enProceso ? '⚙️ EN PROCESO' : '📋 PENDIENTE');
+        card.classList.remove('cotizado','en-proceso');
+        if (cotizado)  card.classList.add('cotizado');
+        if (enProceso) card.classList.add('en-proceso');
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// INICIAR COUNTDOWN DE SALIDA (10 segundos)
+// COUNTDOWN DE SALIDA (10 segundos)
 // ─────────────────────────────────────────────────────────────────────────
 function iniciarCountdown(idTarea) {
-    // Evitar timers duplicados
-    if (timersалида[idTarea]) return;
+    if (timersActivos[idTarea]) return; // ya hay timer
 
     const card = document.querySelector(`.card[data-id="${idTarea}"]`);
     if (!card) return;
 
     card.classList.add('saliendo');
 
-    // Agregar badge de countdown
-    let segundos = 10;
+    let seg = 10;
     const badge = document.createElement('div');
     badge.className = 'countdown-badge';
-    badge.textContent = `✅ Completado · saliendo en ${segundos}s`;
+    badge.textContent = `✅ Completado · saliendo en ${seg}s`;
     card.appendChild(badge);
 
-    const interval = setInterval(() => {
-        segundos--;
-        badge.textContent = `✅ Completado · saliendo en ${segundos}s`;
-        if (segundos <= 0) {
-            clearInterval(interval);
-            delete timersалида[idTarea];
+    timersActivos[idTarea] = setInterval(() => {
+        seg--;
+        badge.textContent = `✅ Completado · saliendo en ${seg}s`;
+        if (seg <= 0) {
+            clearInterval(timersActivos[idTarea]);
+            delete timersActivos[idTarea];
             quitarCard(idTarea);
         }
     }, 1000);
-
-    timersалида[idTarea] = interval;
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// QUITAR TARJETA CON ANIMACIÓN
-// ─────────────────────────────────────────────────────────────────────────
 function quitarCard(idTarea) {
     const card = document.querySelector(`.card[data-id="${idTarea}"]`);
     if (!card) return;
-
     card.classList.remove('saliendo');
     card.classList.add('removing');
     card.addEventListener('animationend', () => {
@@ -362,7 +346,7 @@ async function cargarInicial() {
         const contenedor = document.getElementById('contenedor-tareas');
         contenedor.innerHTML = '';
 
-        // Filtrar: no mostrar las que ya cumplen condición de salida
+        // Filtrar las que ya cumplen condición de salida
         const visibles = data.filter(t => !cumpleCondicionSalida(t));
 
         if (visibles.length === 0) {
@@ -386,70 +370,65 @@ async function cargarInicial() {
 // ─────────────────────────────────────────────────────────────────────────
 function iniciarRealtime() {
     const channel = db
-        .channel('monitor-taller-v2')
+        .channel('monitor-taller-v3')
         .on('postgres_changes',
             { event: '*', schema: 'public', table: 'tareas_taller' },
             (payload) => {
-                console.log('📡', payload.eventType, payload.new || payload.old);
+                const tipo = payload.eventType;
+                console.log('📡', tipo, payload.new || payload.old);
 
-                // ── DELETE físico ──
-                if (payload.eventType === 'DELETE') {
-                    if (timersалида[payload.old.id_tarea]) {
-                        clearInterval(timersалида[payload.old.id_tarea]);
-                        delete timersалида[payload.old.id_tarea];
+                // DELETE físico
+                if (tipo === 'DELETE') {
+                    if (timersActivos[payload.old.id_tarea]) {
+                        clearInterval(timersActivos[payload.old.id_tarea]);
+                        delete timersActivos[payload.old.id_tarea];
                     }
                     quitarCard(payload.old.id_tarea);
                     return;
                 }
 
-                const tarea = payload.new;
-                const idTarea = tarea.id_tarea;
+                const tarea    = payload.new;
+                const idTarea  = tarea.id_tarea;
                 const cardExistente = document.querySelector(`.card[data-id="${idTarea}"]`);
 
-                if (payload.eventType === 'INSERT') {
-                    // Nueva tarea → agregar si no cumple condición de salida
+                if (tipo === 'INSERT') {
                     if (!cumpleCondicionSalida(tarea)) {
                         const contenedor = document.getElementById('contenedor-tareas');
-                        const emptyState = contenedor.querySelector('.empty-state');
-                        if (emptyState) emptyState.remove();
+                        contenedor.querySelector('.empty-state')?.remove();
                         contenedor.appendChild(crearCard(tarea));
                     }
                     return;
                 }
 
-                // ── UPDATE ──
+                // UPDATE
                 if (cumpleCondicionSalida(tarea)) {
-                    // ✅ Condición de salida cumplida → countdown de 10s
+                    // ✅ Condición cumplida → iniciar countdown
                     if (cardExistente && !cardExistente.classList.contains('saliendo')) {
-                        actualizarCard(cardExistente, tarea); // reflejar estado final primero
+                        actualizarCard(cardExistente, tarea);
                         iniciarCountdown(idTarea);
-                    } else if (!cardExistente) {
-                        // Ya no estaba visible, ignorar
                     }
                 } else {
-                    // Actualización parcial (ej: informe marcado LISTO pero sin cotización aún)
+                    // Actualización parcial (ej: solo informe_listo cambió a true)
                     if (cardExistente) {
                         actualizarCard(cardExistente, tarea);
-                        // Si había un timer de salida activo pero ya no cumple → cancelar
-                        if (timersалида[idTarea]) {
-                            clearInterval(timersалида[idTarea]);
-                            delete timersалида[idTarea];
+                        // Cancelar countdown si estaba activo y ya no aplica
+                        if (timersActivos[idTarea]) {
+                            clearInterval(timersActivos[idTarea]);
+                            delete timersActivos[idTarea];
                             cardExistente.classList.remove('saliendo');
-                            const badge = cardExistente.querySelector('.countdown-badge');
-                            if (badge) badge.remove();
+                            cardExistente.querySelector('.countdown-badge')?.remove();
                         }
                     } else {
-                        // Tarea que no estaba visible y ahora debe mostrarse
+                        // Tarea que ahora debe aparecer
                         const contenedor = document.getElementById('contenedor-tareas');
-                        const emptyState = contenedor.querySelector('.empty-state');
-                        if (emptyState) emptyState.remove();
+                        contenedor.querySelector('.empty-state')?.remove();
                         contenedor.appendChild(crearCard(tarea));
                     }
                 }
             }
         )
         .subscribe((status) => {
-            console.log('📡 Realtime status:', status);
+            console.log('📡 Status:', status);
             if (status === 'SUBSCRIBED') {
                 setStatus(true, '🟢 Realtime activo');
             } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
