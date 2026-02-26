@@ -3,188 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
     <title>Diesel Pro - Monitor de Taller</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background-color: #0f172a;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #1e293b;
-            padding: 20px 50px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .logo-container { display: flex; align-items: center; gap: 20px; }
+        body { background-color: #0f172a; color: #ffffff; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; background-color: #1e293b; padding: 20px 50px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .logo { background-color: #f59e0b; padding: 10px 20px; font-size: 28px; font-weight: bold; border-radius: 8px; color: #0f172a; }
         .title { font-size: 36px; font-weight: bold; color: #f8fafc; }
-        .header-right { display: flex; align-items: center; gap: 20px; }
-
-        .status-badge {
-            display: flex; align-items: center; gap: 8px;
-            padding: 8px 16px; border-radius: 20px;
-            font-size: 14px; font-weight: bold; transition: all 0.3s ease;
-        }
-        .status-badge.connected    { background-color: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
-        .status-badge.disconnected { background-color: rgba(239,68,68,0.2);  color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; }
-        .status-badge.connected .status-dot    { background-color: #10b981; }
-        .status-badge.disconnected .status-dot { background-color: #ef4444; animation: none; }
+        .status-badge { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; }
+        .status-badge.connected { background-color: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; }
+        .status-badge.disconnected { background-color: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; background-color: currentColor; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .clock { font-size: 42px; color: #38bdf8; font-family: monospace; font-weight: bold; }
 
-        .clock { font-size: 42px; color: #38bdf8; font-family: 'Courier New', monospace; font-weight: bold; }
-
-        .grid-container {
-            display: flex; flex-direction: column; gap: 15px;
-            padding: 30px 40px;
-            max-height: calc(100vh - 120px);
-            overflow-y: auto;
+        .grid-container { display: flex; flex-direction: column; gap: 15px; padding: 30px 40px; max-height: calc(100vh - 120px); overflow-y: auto; }
+        
+        .card { 
+            display: grid; grid-template-columns: 0.8fr 1.3fr 1fr 0.9fr 1fr 0.65fr; 
+            gap: 15px; align-items: center; background-color: #1e293b; 
+            border-left: 12px solid #f59e0b; padding: 20px 25px; border-radius: 10px; 
+            font-size: 20px; position: relative; transition: all 0.3s ease;
         }
-        .grid-container::-webkit-scrollbar       { width: 10px; }
-        .grid-container::-webkit-scrollbar-track { background: #1e293b; }
-        .grid-container::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 5px; }
-
-        /* ── TARJETA ── */
-        .card {
-            display: grid;
-            grid-template-columns: 0.8fr 1.3fr 1fr 0.9fr 1fr 0.65fr;
-            gap: 15px; align-items: center;
-            background-color: #1e293b;
-            border-left: 12px solid #f59e0b;
-            padding: 20px 25px; border-radius: 10px;
-            font-size: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
         .card.en-proceso { border-left-color: #3b82f6; background-color: #172554; }
-        .card.cotizado   { border-left-color: #8b5cf6; background-color: #2e1065; }
+        .card.cotizado { border-left-color: #8b5cf6; background-color: #2e1065; }
+        
+        .card.saliendo { border-left-color: #10b981 !important; background-color: #052e16 !important; animation: parpadeo 1s infinite; }
+        @keyframes parpadeo { 0%,100% { box-shadow: 0 0 20px rgba(16,185,129,0.4); } 50% { box-shadow: 0 0 45px rgba(16,185,129,0.9); } }
+        
+        .countdown-badge { position: absolute; top: 10px; right: 15px; background-color: #10b981; color: white; font-size: 13px; font-weight: bold; padding: 4px 14px; border-radius: 12px; }
+        
+        .removing { animation: fadeOut 0.7s forwards; overflow: hidden; pointer-events: none; }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(80px); max-height: 0; padding: 0; margin: 0; } }
 
-        /* Tarjeta en salida — verde parpadeante */
-        .card.saliendo {
-            border-left-color: #10b981 !important;
-            background-color: #052e16 !important;
-            animation: parpadeo 1s ease-in-out infinite;
-        }
-        @keyframes parpadeo {
-            0%,100% { box-shadow: 0 0 20px rgba(16,185,129,0.4); }
-            50%      { box-shadow: 0 0 45px rgba(16,185,129,0.9); }
-        }
-
-        .countdown-badge {
-            position: absolute; top: 10px; right: 15px;
-            background-color: #10b981; color: white;
-            font-size: 13px; font-weight: bold;
-            padding: 4px 14px; border-radius: 12px;
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateX(0); max-height: 120px; }
-            to   { opacity: 0; transform: translateX(60px); max-height: 0; padding: 0; margin: 0; }
-        }
-        .card.removing { animation: fadeOut 0.7s ease-out forwards; overflow: hidden; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
-        .card-new { animation: slideIn 0.4s ease-out; }
-
-        /* ── Columnas ── */
-        .col-fecha { display: flex; flex-direction: column; gap: 5px; }
-        .fecha-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: bold; }
-        .fecha-valor { font-size: 18px; color: #38bdf8; font-family: 'Courier New', monospace; font-weight: bold; }
-
-        .col-empresa { display: flex; flex-direction: column; gap: 3px; }
-        .empresa    { font-size: 24px; font-weight: bold; color: #f8fafc; }
+        .fecha-label { font-size: 12px; color: #94a3b8; font-weight: bold; text-transform: uppercase; }
+        .fecha-valor { font-size: 18px; color: #38bdf8; font-weight: bold; }
+        .empresa { font-size: 24px; font-weight: bold; }
         .componente { font-size: 17px; color: #94a3b8; }
-
-        .col-solicitante { display: flex; flex-direction: column; gap: 3px; }
-        .solicitante-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; }
-        .solicitante-valor { font-size: 19px; color: #fbbf24; font-weight: 600; }
-
-        .operario { color: #fbbf24; font-weight: bold; font-size: 19px; }
-
-        .col-informe { display: flex; align-items: center; justify-content: center; }
-        .badge-informe {
-            padding: 9px 16px; border-radius: 20px;
-            font-size: 15px; font-weight: bold; text-align: center;
-        }
-        .badge-informe.sin-informe {
-            background: transparent; color: transparent;
-            border: none; pointer-events: none;
-        }
-        .badge-informe.pendiente {
-            background-color: #431407; color: #fed7aa;
-            border: 1px solid #92400e;
-        }
-        .badge-informe.listo {
-            background-color: #10b981; color: #ffffff;
-            box-shadow: 0 0 16px rgba(16,185,129,0.8);
-            animation: glowInforme 2s ease-in-out infinite;
-        }
-        @keyframes glowInforme {
-            0%,100% { box-shadow: 0 0 10px rgba(16,185,129,0.5); }
-            50%      { box-shadow: 0 0 28px rgba(16,185,129,1.0); }
-        }
-
-        .estado {
-            font-size: 17px; font-weight: bold;
-            padding: 10px 18px; border-radius: 20px;
-            background-color: #fef3c7; color: #b45309;
-            text-align: center; white-space: nowrap;
-        }
-        .card.en-proceso .estado { background-color: #dbeafe; color: #1d4ed8; }
-        .card.cotizado   .estado { background-color: #e9d5ff; color: #6b21a8; }
-        .card.saliendo   .estado { background-color: #d1fae5; color: #065f46; }
-
-        .empty-state { text-align: center; font-size: 40px; padding: 100px; color: #475569; }
+        .solicitante-valor { color: #fbbf24; font-weight: 600; }
+        .operario { color: #fbbf24; font-weight: bold; }
+        
+        .badge-informe { padding: 8px 12px; border-radius: 15px; font-size: 14px; font-weight: bold; text-align: center; }
+        .badge-informe.listo { background-color: #10b981; color: white; }
+        .badge-informe.pendiente { background-color: #431407; color: #fed7aa; border: 1px solid #92400e; }
+        
+        .estado { font-size: 17px; font-weight: bold; padding: 10px 18px; border-radius: 20px; background-color: #fef3c7; color: #b45309; text-align: center; white-space: nowrap; }
+        .empty-state { text-align: center; font-size: 40px; padding: 100px; color: #475569; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="logo-container">
+    <div style="display:flex; align-items:center; gap:20px;">
         <div class="logo">DP</div>
         <div class="title">MONITOR DE TALLER</div>
     </div>
-    <div class="header-right">
+    <div style="display:flex; align-items:center; gap:20px;">
         <div class="status-badge disconnected" id="status-badge">
             <div class="status-dot"></div>
-            <span id="status-text">Conectando...</span>
+            <span id="status-text">Iniciando...</span>
         </div>
-        <div class="clock" id="reloj"></div>
+        <div class="clock" id="reloj">00:00:00</div>
     </div>
 </div>
 
 <div class="grid-container" id="contenedor-tareas">
-    <div class="empty-state">⏳ Conectando con Supabase...</div>
+    <div class="empty-state">⏳ Cargando tareas del taller...</div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-const SUPABASE_URL      = 'https://uobfergikgoxqqnmdbgw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvYmZlcmdpa2dveHFxbm1kYmd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTU5OTAsImV4cCI6MjA4NzQzMTk5MH0.FhJr4aDyMOyPv6ea44aYQSZhxeAK3988M-Zb4oVDgww';
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script>
+const SUPABASE_URL = 'https://uobfergikgoxqqnmdbgw.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvYmZlcmdpa2dveHFxbm1kYmd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTU5OTAsImV4cCI6MjA4NzQzMTk5MH0.FhJr4aDyMOyPv6ea44aYQSZhxeAK3988M-Zb4oVDgww';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const timersActivos = {};
+const ESTADOS_PERMITIDOS = ['PENDIENTE', 'EN_PROCESO', 'COTIZADO'];
 
 function actualizarReloj() {
-    const d = new Date();
-    document.getElementById('reloj').textContent =
-        `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+    document.getElementById('reloj').textContent = new Date().toLocaleTimeString('es-PE', { hour12: false });
 }
 setInterval(actualizarReloj, 1000);
-actualizarReloj();
 
 function setStatus(connected, text) {
     const badge = document.getElementById('status-badge');
@@ -192,85 +93,56 @@ function setStatus(connected, text) {
     document.getElementById('status-text').textContent = text;
 }
 
+// Una tarea debe SALIR si tiene cotización Y el informe está listo (o no requiere)
 function cumpleCondicionSalida(t) {
-    const tieneCotizacion = t.nro_cotizacion_vinculada && t.nro_cotizacion_vinculada.trim() !== '';
-    const informeOK       = !t.requiere_informe || t.informe_listo === true;
-    return informeOK && tieneCotizacion;
-}
-
-function badgeInforme(t) {
-    if (!t.requiere_informe)
-        return `<div class="badge-informe sin-informe"></div>`;
-    if (t.informe_listo === true)
-        return `<div class="badge-informe listo">✅ INFORME LISTO</div>`;
-    return `<div class="badge-informe pendiente">⏳ Informe pendiente</div>`;
+    const tieneCot = (t.nro_cotizacion_vinculada && t.nro_cotizacion_vinculada.trim() !== '');
+    const informeOk = (!t.requiere_informe || t.informe_listo);
+    return tieneCot && informeOk;
 }
 
 function formatFecha(raw) {
-    if (!raw) return 'Sin fecha';
-    try {
-        const f = new Date(raw);
-        return `${String(f.getDate()).padStart(2,'0')}/${String(f.getMonth()+1).padStart(2,'0')}/${f.getFullYear()} `
-             + `${String(f.getHours()).padStart(2,'0')}:${String(f.getMinutes()).padStart(2,'0')}`;
-    } catch { return raw; }
+    if (!raw) return '--:--';
+    const f = new Date(raw);
+    return f.toLocaleDateString('es-PE', {day:'2-digit', month:'2-digit'}) + ' ' + f.toLocaleTimeString('es-PE', {hour:'2-digit', minute:'2-digit'});
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// CREAR TARJETA (CORREGIDO: Muestra Nro Cotización)
-// ─────────────────────────────────────────────────────────────────────────
 function crearCard(t) {
-    const enProceso = t.estado === 'EN_PROCESO';
-    const cotizado  = t.estado === 'COTIZADO';
-
-    const div = document.createElement('div');
-    div.className = `card card-new ${cotizado ? 'cotizado' : (enProceso ? 'en-proceso' : '')}`;
-    div.dataset.id = t.id_tarea;
-
-    const textoEstado = cotizado 
+    const card = document.createElement('div');
+    card.className = `card ${t.estado === 'COTIZADO' ? 'cotizado' : (t.estado === 'EN_PROCESO' ? 'en-proceso' : '')}`;
+    card.dataset.id = t.id_tarea;
+    
+    // Mostramos el NÚMERO DE COTIZACIÓN si el estado es COTIZADO
+    const txtEstado = t.estado === 'COTIZADO' 
         ? `📄 ${t.nro_cotizacion_vinculada || 'COTIZADO'}` 
-        : (enProceso ? '⚙️ EN PROCESO' : '📋 COT_PEND');
+        : (t.estado === 'EN_PROCESO' ? '⚙️ EN PROCESO' : '📋 COT_PEND');
 
-    div.innerHTML = `
-        <div class="col-fecha">
-            <span class="fecha-label">📅 Ingreso</span>
-            <span class="fecha-valor">${formatFecha(t.fecha_ingreso)}</span>
-        </div>
-        <div class="col-empresa">
-            <div class="empresa">${t.empresa || 'Sin nombre'}</div>
-            <div class="componente">${t.componente || 'Sin especificar'}</div>
-        </div>
-        <div class="col-solicitante">
-            <span class="solicitante-label">👤 Solicitante</span>
-            <span class="solicitante-valor">${t.solicitante || 'No especificado'}</span>
-        </div>
+    card.innerHTML = `
+        <div class="col-fecha"><span class="fecha-label">📅 Ingreso</span><br><span class="fecha-valor">${formatFecha(t.fecha_ingreso)}</span></div>
+        <div class="col-empresa"><div class="empresa">${t.empresa || 'S/N'}</div><div class="componente">${t.componente || '---'}</div></div>
+        <div><span class="fecha-label">👤 Solicitante</span><br><span class="solicitante-valor">${t.solicitante || '---'}</span></div>
         <div class="operario">🔧 ${t.operario_asignado || 'Sin asignar'}</div>
-        <div class="col-informe">${badgeInforme(t)}</div>
-        <div class="estado">
-            ${textoEstado}
-        </div>
+        <div style="text-align:center">${t.requiere_informe ? `<div class="badge-informe ${t.informe_listo?'listo':'pendiente'}">${t.informe_listo?'✅ INFORME':'⏳ INFORME'}</div>` : ''}</div>
+        <div class="estado">${txtEstado}</div>
     `;
-    return div;
+    return card;
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// ACTUALIZAR TARJETA (CORREGIDO: Refresca Nro Cotización)
-// ─────────────────────────────────────────────────────────────────────────
-function actualizarCard(card, t) {
-    const col = card.querySelector('.col-informe');
-    if (col) col.innerHTML = badgeInforme(t);
+function quitarCard(idTarea) {
+    const card = document.querySelector(`.card[data-id="${idTarea}"]`);
+    if (card && !card.classList.contains('removing')) {
+        if (timersActivos[idTarea]) { clearInterval(timersActivos[idTarea]); delete timersActivos[idTarea]; }
+        card.classList.add('removing');
+        setTimeout(() => { 
+            card.remove(); 
+            validarContenedorVacio();
+        }, 700);
+    }
+}
 
-    const estadoDiv = card.querySelector('.estado');
-    if (estadoDiv) {
-        const cotizado  = t.estado === 'COTIZADO';
-        const enProceso = t.estado === 'EN_PROCESO';
-        
-        estadoDiv.textContent = cotizado 
-            ? `📄 ${t.nro_cotizacion_vinculada || 'COTIZADO'}` 
-            : (enProceso ? '⚙️ EN PROCESO' : '📋 PENDIENTE');
-            
-        card.classList.remove('cotizado','en-proceso');
-        if (cotizado)  card.classList.add('cotizado');
-        if (enProceso) card.classList.add('en-proceso');
+function validarContenedorVacio() {
+    const cont = document.getElementById('contenedor-tareas');
+    if (cont.querySelectorAll('.card:not(.removing)').length === 0) {
+        cont.innerHTML = '<div class="empty-state">✅ SIN TAREAS ACTIVAS EN TALLER</div>';
     }
 }
 
@@ -278,146 +150,92 @@ function iniciarCountdown(idTarea) {
     if (timersActivos[idTarea]) return;
     const card = document.querySelector(`.card[data-id="${idTarea}"]`);
     if (!card) return;
+
     card.classList.add('saliendo');
-    let seg = 10;
-    const badge = document.createElement('div');
-    badge.className = 'countdown-badge';
-    badge.textContent = `✅ Completado · saliendo en ${seg}s`;
-    card.appendChild(badge);
+    let s = 10;
+    const b = document.createElement('div');
+    b.className = 'countdown-badge';
+    b.textContent = `✅ Completado · saliendo en ${s}s`;
+    card.appendChild(b);
+
     timersActivos[idTarea] = setInterval(() => {
-        seg--;
-        badge.textContent = `✅ Completado · saliendo en ${seg}s`;
-        if (seg <= 0) {
-            clearInterval(timersActivos[idTarea]);
-            delete timersActivos[idTarea];
-            quitarCard(idTarea);
-        }
+        s--;
+        b.textContent = `✅ Completado · saliendo en ${s}s`;
+        if (s <= 0) { quitarCard(idTarea); }
     }, 1000);
 }
 
-function quitarCard(idTarea) {
-    const card = document.querySelector(`.card[data-id="${idTarea}"]`);
-    if (!card) return;
-    card.classList.remove('saliendo');
-    card.classList.add('removing');
-    card.addEventListener('animationend', () => {
-        card.remove();
-        const contenedor = document.getElementById('contenedor-tareas');
-        if (contenedor.querySelectorAll('.card').length === 0)
-            contenedor.innerHTML = '<div class="empty-state">✅ NO HAY TAREAS ACTIVAS EN TALLER</div>';
-    }, { once: true });
-}
+async function cargarDatos() {
+    // Solo traemos los estados que pertenecen al taller
+    const { data, error } = await db.from('tareas_taller')
+        .select('*')
+        .in('estado', ESTADOS_PERMITIDOS)
+        .order('fecha_ingreso', {ascending: true});
 
-async function cargarInicial() {
-    try {
-        const { data, error } = await db
-            .from('tareas_taller')
-            .select('*')
-            .in('estado', ['PENDIENTE', 'EN_PROCESO', 'COTIZADO'])
-            .order('fecha_ingreso', { ascending: true });
+    if (error) { setStatus(false, 'Error de conexión'); return; }
 
-        if (error) throw error;
-        const contenedor = document.getElementById('contenedor-tareas');
-        contenedor.innerHTML = '';
-        const visibles = data.filter(t => !cumpleCondicionSalida(t));
-        if (visibles.length === 0) {
-            contenedor.innerHTML = '<div class="empty-state">✅ NO HAY TAREAS ACTIVAS EN TALLER</div>';
-        } else {
-            visibles.forEach(t => contenedor.appendChild(crearCard(t)));
+    const cont = document.getElementById('contenedor-tareas');
+    const tareasParaMostrar = data.filter(t => !cumpleCondicionSalida(t));
+
+    // Si una tarea ya estaba en pantalla pero NO vino en la nueva lista, la quitamos (Limpia cancelados)
+    const cardsEnPantalla = document.querySelectorAll('.card');
+    cardsEnPantalla.forEach(card => {
+        const id = parseInt(card.dataset.id);
+        if (!tareasParaMostrar.find(t => t.id_tarea === id)) {
+            quitarCard(id);
         }
-        return true;
-    } catch (e) {
-        console.error('❌ Error carga inicial:', e);
-        document.getElementById('contenedor-tareas').innerHTML = '<div class="empty-state">⚠️ ERROR DE CONEXIÓN</div>';
-        return false;
-    }
-}
+    });
 
-// ─────────────────────────────────────────────────────────────────────────
-// REALTIME (CORREGIDO: Elimina cancelados automáticamente)
-// ─────────────────────────────────────────────────────────────────────────
-function iniciarRealtime() {
-    const channel = db
-        .channel('monitor-taller-v3')
-        .on('postgres_changes',
-            { event: '*', schema: 'public', table: 'tareas_taller' },
-            (payload) => {
-                const tipo = payload.eventType;
-                const tarea = payload.new;
-                const oldTarea = payload.old;
-                const idTarea = tarea ? tarea.id_tarea : oldTarea.id_tarea;
-                const cardExistente = document.querySelector(`.card[data-id="${idTarea}"]`);
+    // Añadir o actualizar las que sí deben estar
+    if (tareasParaMostrar.length === 0) {
+        validarContenedorVacio();
+    } else {
+        const empty = cont.querySelector('.empty-state');
+        if (empty) empty.remove();
 
-                if (tipo === 'DELETE') {
-                    if (timersActivos[idTarea]) clearInterval(timersActivos[idTarea]);
-                    quitarCard(idTarea);
-                    return;
-                }
-
-                // NUEVA LÓGICA: Si el estado cambia a algo que no es taller (ej: CANCELADO), quitar la tarjeta
-                const estadosPermitidos = ['PENDIENTE', 'EN_PROCESO', 'COTIZADO'];
-                if (tipo === 'UPDATE' && !estadosPermitidos.includes(tarea.estado)) {
-                    if (cardExistente) {
-                        if (timersActivos[idTarea]) clearInterval(timersActivos[idTarea]);
-                        quitarCard(idTarea);
-                    }
-                    return;
-                }
-
-                if (tipo === 'INSERT') {
-                    if (!cumpleCondicionSalida(tarea)) {
-                        const contenedor = document.getElementById('contenedor-tareas');
-                        contenedor.querySelector('.empty-state')?.remove();
-                        contenedor.appendChild(crearCard(tarea));
-                    }
-                    return;
-                }
-
-                if (tipo === 'UPDATE') {
-                    if (cumpleCondicionSalida(tarea)) {
-                        if (cardExistente && !cardExistente.classList.contains('saliendo')) {
-                            actualizarCard(cardExistente, tarea);
-                            iniciarCountdown(idTarea);
-                        }
-                    } else {
-                        if (cardExistente) {
-                            actualizarCard(cardExistente, tarea);
-                            // Cancelar countdown si volvió atrás el estado
-                            if (timersActivos[idTarea]) {
-                                clearInterval(timersActivos[idTarea]);
-                                delete timersActivos[idTarea];
-                                cardExistente.classList.remove('saliendo');
-                                cardExistente.querySelector('.countdown-badge')?.remove();
-                            }
-                        } else {
-                            const contenedor = document.getElementById('contenedor-tareas');
-                            contenedor.querySelector('.empty-state')?.remove();
-                            contenedor.appendChild(crearCard(tarea));
-                        }
-                    }
-                }
-            }
-        )
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') setStatus(true, '🟢 Realtime activo');
-            else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-                setStatus(false, '🔴 Reconectando...');
-                setTimeout(() => { channel.unsubscribe(); iniciarRealtime(); }, 5000);
+        tareasParaMostrar.forEach(t => {
+            const existe = document.querySelector(`.card[data-id="${t.id_tarea}"]`);
+            if (!existe) {
+                cont.appendChild(crearCard(t));
+            } else if (!existe.classList.contains('removing') && !existe.classList.contains('saliendo')) {
+                // Actualización rápida de contenido
+                const clon = crearCard(t);
+                existe.innerHTML = clon.innerHTML;
+                existe.className = clon.className;
             }
         });
+    }
+    setStatus(true, '🟢 Monitor Activo');
 }
 
-(async () => {
-    const ok = await cargarInicial();
-    if (ok) iniciarRealtime();
-    else {
-        setStatus(false, '🔴 Sin conexión');
-        setInterval(async () => {
-            const retry = await cargarInicial();
-            if (retry) iniciarRealtime();
-        }, 10000);
-    }
-})();
+function iniciarEscuchaRealtime() {
+    db.channel('cambios-taller')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'tareas_taller' }, payload => {
+            console.log('Cambio detectado:', payload.eventType, payload.new);
+            
+            // Si es un borrado o el nuevo estado NO es de taller, quitar de pantalla
+            if (payload.eventType === 'DELETE' || (payload.new && !ESTADOS_PERMITIDOS.includes(payload.new.estado))) {
+                quitarCard(payload.new ? payload.new.id_tarea : payload.old.id_tarea);
+                return;
+            }
+
+            // Si cumple condición de salida (Cotizado + Informe), iniciar countdown
+            if (cumpleCondicionSalida(payload.new)) {
+                iniciarCountdown(payload.new.id_tarea);
+            } else {
+                // Para cualquier otro cambio (incluyendo el número de cotización), refrescar
+                cargarDatos();
+            }
+        })
+        .subscribe();
+}
+
+// Inicio
+cargarDatos().then(iniciarEscuchaRealtime);
+
+// Refresco de seguridad cada 2 minutos (por si falla el realtime)
+setInterval(cargarDatos, 120000);
+
 </script>
 </body>
 </html>
